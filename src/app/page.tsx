@@ -1,62 +1,64 @@
-"use client";
+'use client'
 
-import { useEffect, useRef, useState } from "react";
-import { Button } from "@/components/ui/button";
-import html2canvas from "html2canvas";
-import { filetoBase64 } from "@/lib/file2base64";
-import Canvas2Image from "@/lib/cavans2image";
-
+import html2canvas from 'html2canvas'
+import { useEffect, useRef, useState } from 'react'
+import { Button } from '@/components/ui/button'
+import { filetoBase64 } from '@/lib/file2base64'
 
 export default function Home() {
-
-  const [currentDpx, setCurrentDpx] = useState(1);
-  const [currentImg, setCuttentImg] = useState<string | null>(null);
-  const targetRef = useRef<HTMLDivElement>(null);
-  const inputFileRef = useRef<HTMLInputElement>(null);
+  const [currentDpx, setCurrentDpx] = useState(1)
+  const [currentImg, setCuttentImg] = useState<string | null>(null)
+  const targetRef = useRef<HTMLDivElement>(null)
+  const inputFileRef = useRef<HTMLInputElement>(null)
 
   const updatePixelRatio = () => {
-    let pr = window.devicePixelRatio;
-    setCurrentDpx(pr);
-  };
+    const pr = window.devicePixelRatio
+    setCurrentDpx(pr)
+  }
 
   useEffect(() => {
-    let mqString = `(resolution: ${window.devicePixelRatio}dppx)`;
-    window.matchMedia(mqString).addEventListener("change", updatePixelRatio);
+    const mqString = `(resolution: ${window.devicePixelRatio}dppx)`
+    window.matchMedia(mqString).addEventListener('change', updatePixelRatio)
 
     setCurrentDpx(window.devicePixelRatio)
-
   }, [])
 
-
   const takeScreenshotHandler = async () => {
-    const element = targetRef.current;
-    if (!element) return;
+    const element = targetRef.current
+    if (!element)
+      return
 
-    const width = element.offsetWidth;
-    const height = element.offsetHeight;
-    const canvas = document.createElement("canvas");
+    window.scrollY = 0
+    document.documentElement.scrollTop = 0
+    document.body.scrollTop = 0
 
+    const width = element.offsetWidth // 获取dom 宽度
+    const height = element.offsetHeight // 获取dom 高度
+    const canvas = document.createElement('canvas') // 创建一个canvas节点
+    const scale = currentDpx // 定义任意放大倍数 支持小数
+    canvas.width = width * scale // 定义canvas 宽度 * 缩放
+    canvas.height = height * scale // 定义canvas高度 *缩放
+    const context = canvas.getContext('2d')
 
-    canvas.width = width * currentDpx;
-    canvas.height = height * currentDpx;
-    canvas.getContext('2d')?.scale(currentDpx, currentDpx);
+    if (!context) {
+      return
+    }
+
+    context.imageSmoothingEnabled = false
+    context.imageSmoothingQuality = 'high'
 
     await html2canvas(element, {
       canvas,
       scale: currentDpx,
-      width: width,
+      width,
       logging: true,
-      height: height,
-      useCORS: true
-    });
+      height,
+      useCORS: true,
+    })
 
-    const context = canvas.getContext('2d');
-    if (!context) {
-      return
-    }
-    context.imageSmoothingEnabled = false;
-    Canvas2Image.saveAsImage(canvas, canvas.width.toString(), canvas.height, 'png', 'image.png');
+    const Canvas2Image = (await import('@/lib/cavans2image')).default
 
+    Canvas2Image.saveAsImage(canvas, canvas.width, canvas.height, 'jpeg', 'image')
 
     // const data = canvas.toDataURL('image/png', 1.0);
     // const link = document.createElement("a");
@@ -65,31 +67,28 @@ export default function Home() {
     // document.body.appendChild(link);
     // link.click();
     // document.body.removeChild(link);
-  };
+  }
 
   const onInputFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
+    const files = e.target.files
     if (files) {
-      const file = files[0];
-      const base64 = await filetoBase64(file);
+      const file = files[0]
+      const base64 = await filetoBase64(file)
       setCuttentImg(base64)
     }
-  };
+  }
 
   const onFileClick = () => {
     if (inputFileRef.current) {
-      inputFileRef.current.click();
+      inputFileRef.current.click()
     }
-  };
-
+  }
 
   return (
-    <main className="flex flex-col gap-8">
+    <main className="flex flex-col">
 
-      <canvas className="hidden" width={400} height={600} style={{ width: 200, height: 300 }}></canvas>
-
-      <div ref={targetRef}>
-        <div className="relative h-[400px] max-h-[600px] cursor-pointer" onClick={onFileClick}>
+      <div className="bg-white dark:bg-black" ref={targetRef}>
+        <div className="w-full h-60 md:h-80 cursor-pointer relative" onClick={onFileClick}>
           <input
             ref={inputFileRef}
             className="hidden"
@@ -97,17 +96,41 @@ export default function Home() {
             accept="image/*"
             onChange={onInputFileChange}
           />
-          {
-            currentImg &&
-            <img className="absolute top-[0] left-[0] w-[100%] h-[100%] object-cover" src={currentImg} />
-          }
+          <div>
+            {
+              currentImg
+              && <img className="block align-top w-full" src={currentImg} />
+            }
+          </div>
+
         </div>
-        <h1 className="text-3xl">hello</h1>
-        <p className="text-[#5eead4]">world</p>
-        <p className="text-amber-100">hello</p>
+
+        <div className="flex justify-between p-4 md:p-8 leading-none dark:text-white">
+          <div>
+            <h3 className="font-medium text-xs md:text-[22px] mb-1 md:mb-3"> XIAOMI 12S ULTRA </h3>
+            <p className="opacity-40 dark:opacity-80 text-[8px] md:text-base"> 2024.06.25 10:42:20 </p>
+          </div>
+          <div className="flex items-center gap-[6px] md:gap-3">
+            <img src="" alt="" className="w-6 h-6 md:w-12 md:h-12 object-cover" />
+            <div className="w-[1px] h-6 md:h-12 bg-[#D8D8D8]"></div>
+            <div>
+              <h3 className="font-medium text-xs md:text-[22px] mb-1 md:mb-3 flex gap-[6px] md:gap-3">
+                <span>120mm</span>
+                <span>f/4.1</span>
+                <span>1/100</span>
+                <span>ISO90</span>
+              </h3>
+              <p className="opacity-40 dark:opacity-80 text-[8px] md:text-base flex gap-[6px] md:gap-3">
+                <span>40°3'13"N</span>
+                <span>116°19'25"E</span>
+              </p>
+            </div>
+          </div>
+        </div>
+
       </div>
 
       <Button onClick={takeScreenshotHandler}>下载</Button>
     </main>
-  );
+  )
 }
