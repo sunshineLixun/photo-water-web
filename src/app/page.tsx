@@ -1,9 +1,9 @@
 'use client'
 
-import html2canvas from 'html2canvas'
-import { useEffect, useRef, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { filetoBase64 } from '@/lib/file2base64'
+import html2canvas from 'html2canvas'
+import { useEffect, useRef, useState } from 'react'
 
 export default function Home() {
   const [currentDpx, setCurrentDpx] = useState(1)
