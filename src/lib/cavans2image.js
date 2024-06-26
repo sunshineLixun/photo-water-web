@@ -5,92 +5,91 @@
 const Canvas2Image = (function () {
   // check if support sth.
   const $support = (function () {
-    const canvas = document.createElement('canvas')
-    const ctx = canvas.getContext('2d')
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
 
     return {
       canvas: !!ctx,
       imageData: !!ctx.getImageData,
       dataURL: !!canvas.toDataURL,
       btoa: !!window.btoa,
-    }
-  })()
+    };
+  })();
 
-  const downloadMime = 'image/octet-stream'
+  const downloadMime = 'image/octet-stream';
 
   function scaleCanvas(canvas, width, height) {
-    const w = canvas.width
-    const h = canvas.height
+    const w = canvas.width;
+    const h = canvas.height;
     if (width === undefined) {
-      width = w
+      width = w;
     }
     if (height === undefined) {
-      height = h
+      height = h;
     }
 
-    const retCanvas = document.createElement('canvas')
-    const retCtx = retCanvas.getContext('2d')
-    retCanvas.width = width
-    retCanvas.height = height
-    retCtx.drawImage(canvas, 0, 0, w, h, 0, 0, width, height)
-    return retCanvas
+    const retCanvas = document.createElement('canvas');
+    const retCtx = retCanvas.getContext('2d');
+    retCanvas.width = width;
+    retCanvas.height = height;
+    retCtx.drawImage(canvas, 0, 0, w, h, 0, 0, width, height);
+    return retCanvas;
   }
 
   function getDataURL(canvas, type, width, height) {
-    canvas = scaleCanvas(canvas, width, height)
-    return canvas.toDataURL(type)
+    canvas = scaleCanvas(canvas, width, height);
+    return canvas.toDataURL(type);
   }
 
   // save file to local with file name and file type
   function saveFile(strData, fileType, fileName = 'name') {
     // document.location.href = strData;
-    const saveLink = document.createElement('a')
+    const saveLink = document.createElement('a');
     // download file name
-    saveLink.download = `${fileName}.${fileType}`
+    saveLink.download = `${fileName}.${fileType}`;
     // download file data
-    saveLink.href = strData
+    saveLink.href = strData;
     // start download
-    saveLink.click()
+    saveLink.click();
   }
 
   function genImage(strData) {
-    const img = document.createElement('img')
-    img.src = strData
-    return img
+    const img = document.createElement('img');
+    img.src = strData;
+    return img;
   }
 
   function fixType(type) {
-    type = type.toLowerCase().replace(/jpg/i, 'jpeg')
-    const r = type.match(/png|jpeg|bmp|gif/)[0]
-    return `image/${r}`
+    type = type.toLowerCase().replace(/jpg/i, 'jpeg');
+    const r = type.match(/png|jpeg|bmp|gif/)[0];
+    return `image/${r}`;
   }
 
   function encodeData(data) {
     if (!window.btoa) {
       // eslint-disable-next-line no-throw-literal
-      throw 'btoa undefined'
+      throw 'btoa undefined';
     }
-    let str = ''
+    let str = '';
     if (typeof data == 'string') {
-      str = data
-    }
-    else {
+      str = data;
+    } else {
       for (let i = 0; i < data.length; i++) {
-        str += String.fromCharCode(data[i])
+        str += String.fromCharCode(data[i]);
       }
     }
 
-    return btoa(str)
+    return btoa(str);
   }
 
   function getImageData(canvas) {
-    const w = canvas.width
-    const h = canvas.height
-    return canvas.getContext('2d').getImageData(0, 0, w, h)
+    const w = canvas.width;
+    const h = canvas.height;
+    return canvas.getContext('2d').getImageData(0, 0, w, h);
   }
 
   function makeURI(strData, type) {
-    return `data:${type};base64,${strData}`
+    return `data:${type};base64,${strData}`;
   }
 
   /**
@@ -103,10 +102,10 @@ const Canvas2Image = (function () {
     // BITMAPINFOHEADER: http://msdn.microsoft.com/en-us/library/dd183376.aspx
     //
 
-    const biWidth = oData.width
-    const biHeight = oData.height
-    const biSizeImage = biWidth * biHeight * 3
-    const bfSize = biSizeImage + 54 // total header size = 54 bytes
+    const biWidth = oData.width;
+    const biHeight = oData.height;
+    const biSizeImage = biWidth * biHeight * 3;
+    const bfSize = biSizeImage + 54; // total header size = 54 bytes
 
     //
     //  typedef struct tagBITMAPFILEHEADER {
@@ -120,12 +119,12 @@ const Canvas2Image = (function () {
     const BITMAPFILEHEADER = [
       // WORD bfType -- The file type signature; must be "BM"
       0x42,
-      0x4D,
+      0x4d,
       // DWORD bfSize -- The size, in bytes, of the bitmap file
-      bfSize & 0xFF,
-      (bfSize >> 8) & 0xFF,
-      (bfSize >> 16) & 0xFF,
-      (bfSize >> 24) & 0xFF,
+      bfSize & 0xff,
+      (bfSize >> 8) & 0xff,
+      (bfSize >> 16) & 0xff,
+      (bfSize >> 24) & 0xff,
       // WORD bfReserved1 -- Reserved; must be zero
       0,
       0,
@@ -137,7 +136,7 @@ const Canvas2Image = (function () {
       0,
       0,
       0,
-    ]
+    ];
 
     //
     //  typedef struct tagBITMAPINFOHEADER {
@@ -161,15 +160,15 @@ const Canvas2Image = (function () {
       0,
       0,
       // LONG biWidth -- The width of the bitmap, in pixels
-      biWidth & 0xFF,
-      (biWidth >> 8) & 0xFF,
-      (biWidth >> 16) & 0xFF,
-      (biWidth >> 24) & 0xFF,
+      biWidth & 0xff,
+      (biWidth >> 8) & 0xff,
+      (biWidth >> 16) & 0xff,
+      (biWidth >> 24) & 0xff,
       // LONG biHeight -- The height of the bitmap, in pixels
-      biHeight & 0xFF,
-      (biHeight >> 8) & 0xFF,
-      (biHeight >> 16) & 0xFF,
-      (biHeight >> 24) & 0xFF,
+      biHeight & 0xff,
+      (biHeight >> 8) & 0xff,
+      (biHeight >> 16) & 0xff,
+      (biHeight >> 24) & 0xff,
       // WORD biPlanes -- The number of planes for the target device. This value must be set to 1
       1,
       0,
@@ -183,10 +182,10 @@ const Canvas2Image = (function () {
       0,
       0,
       // DWORD biSizeImage -- The size, in bytes, of the image. This may be set to zero for BI_RGB bitmaps
-      biSizeImage & 0xFF,
-      (biSizeImage >> 8) & 0xFF,
-      (biSizeImage >> 16) & 0xFF,
-      (biSizeImage >> 24) & 0xFF,
+      biSizeImage & 0xff,
+      (biSizeImage >> 8) & 0xff,
+      (biSizeImage >> 16) & 0xff,
+      (biSizeImage >> 24) & 0xff,
       // LONG biXPelsPerMeter, unused
       0,
       0,
@@ -207,40 +206,37 @@ const Canvas2Image = (function () {
       0,
       0,
       0,
-    ]
+    ];
 
-    const iPadding = (4 - ((biWidth * 3) % 4)) % 4
+    const iPadding = (4 - ((biWidth * 3) % 4)) % 4;
 
-    const aImgData = oData.data
+    const aImgData = oData.data;
 
-    let strPixelData = ''
-    const biWidth4 = biWidth << 2
-    let y = biHeight
-    const fromCharCode = String.fromCharCode
+    let strPixelData = '';
+    const biWidth4 = biWidth << 2;
+    let y = biHeight;
+    const fromCharCode = String.fromCharCode;
 
     do {
-      const iOffsetY = biWidth4 * (y - 1)
-      let strPixelRow = ''
+      const iOffsetY = biWidth4 * (y - 1);
+      let strPixelRow = '';
       for (let x = 0; x < biWidth; x++) {
-        const iOffsetX = x << 2
-        strPixelRow
-          += fromCharCode(aImgData[iOffsetY + iOffsetX + 2])
-          + fromCharCode(aImgData[iOffsetY + iOffsetX + 1])
-          + fromCharCode(aImgData[iOffsetY + iOffsetX])
+        const iOffsetX = x << 2;
+        strPixelRow +=
+          fromCharCode(aImgData[iOffsetY + iOffsetX + 2]) +
+          fromCharCode(aImgData[iOffsetY + iOffsetX + 1]) +
+          fromCharCode(aImgData[iOffsetY + iOffsetX]);
       }
 
       for (let c = 0; c < iPadding; c++) {
-        strPixelRow += String.fromCharCode(0)
+        strPixelRow += String.fromCharCode(0);
       }
 
-      strPixelData += strPixelRow
-    } while (--y)
+      strPixelData += strPixelRow;
+    } while (--y);
 
-    return (
-      encodeData(BITMAPFILEHEADER.concat(BITMAPINFOHEADER))
-      + encodeData(strPixelData)
-    )
-  }
+    return encodeData(BITMAPFILEHEADER.concat(BITMAPINFOHEADER)) + encodeData(strPixelData);
+  };
 
   /**
    * saveAsImage
@@ -252,81 +248,79 @@ const Canvas2Image = (function () {
    */
   const saveAsImage = function (canvas, width, height, type, fileName) {
     // save file type
-    const fileType = type
+    const fileType = type;
     if ($support.canvas && $support.dataURL) {
       if (typeof canvas == 'string') {
-        canvas = document.getElementById(canvas)
+        canvas = document.getElementById(canvas);
       }
       if (type === undefined) {
-        type = 'png'
+        type = 'png';
       }
-      type = fixType(type)
+      type = fixType(type);
       if (/bmp/.test(type)) {
-        const data = getImageData(scaleCanvas(canvas, width, height))
-        const strData = genBitmapImage(data)
+        const data = getImageData(scaleCanvas(canvas, width, height));
+        const strData = genBitmapImage(data);
         // use new parameter: fileType
-        saveFile(makeURI(strData, downloadMime), fileType, fileName)
-      }
-      else {
-        const strData = getDataURL(canvas, type, width, height)
+        saveFile(makeURI(strData, downloadMime), fileType, fileName);
+      } else {
+        const strData = getDataURL(canvas, type, width, height);
         // use new parameter: fileType
-        saveFile(strData.replace(type, downloadMime), fileType, fileName)
+        saveFile(strData.replace(type, downloadMime), fileType, fileName);
       }
     }
-  }
+  };
 
   const convertToImage = function (canvas, width, height, type) {
     if ($support.canvas && $support.dataURL) {
       if (typeof canvas == 'string') {
-        canvas = document.getElementById(canvas)
+        canvas = document.getElementById(canvas);
       }
       if (type === undefined) {
-        type = 'png'
+        type = 'png';
       }
-      type = fixType(type)
+      type = fixType(type);
 
       if (/bmp/.test(type)) {
-        const data = getImageData(scaleCanvas(canvas, width, height))
-        const strData = genBitmapImage(data)
-        return genImage(makeURI(strData, 'image/bmp'))
-      }
-      else {
-        const strData = getDataURL(canvas, type, width, height)
-        return genImage(strData)
+        const data = getImageData(scaleCanvas(canvas, width, height));
+        const strData = genBitmapImage(data);
+        return genImage(makeURI(strData, 'image/bmp'));
+      } else {
+        const strData = getDataURL(canvas, type, width, height);
+        return genImage(strData);
       }
     }
-  }
+  };
 
   return {
     saveAsImage,
     saveAsPNG(canvas, width, height, fileName) {
-      return saveAsImage(canvas, width, height, 'png', fileName)
+      return saveAsImage(canvas, width, height, 'png', fileName);
     },
     saveAsJPEG(canvas, width, height, fileName) {
-      return saveAsImage(canvas, width, height, 'jpeg', fileName)
+      return saveAsImage(canvas, width, height, 'jpeg', fileName);
     },
     saveAsGIF(canvas, width, height, fileName) {
-      return saveAsImage(canvas, width, height, 'gif', fileName)
+      return saveAsImage(canvas, width, height, 'gif', fileName);
     },
     saveAsBMP(canvas, width, height, fileName) {
-      return saveAsImage(canvas, width, height, 'bmp', fileName)
+      return saveAsImage(canvas, width, height, 'bmp', fileName);
     },
 
     convertToImage,
     convertToPNG(canvas, width, height) {
-      return convertToImage(canvas, width, height, 'png')
+      return convertToImage(canvas, width, height, 'png');
     },
     convertToJPEG(canvas, width, height) {
-      return convertToImage(canvas, width, height, 'jpeg')
+      return convertToImage(canvas, width, height, 'jpeg');
     },
     convertToGIF(canvas, width, height) {
-      return convertToImage(canvas, width, height, 'gif')
+      return convertToImage(canvas, width, height, 'gif');
     },
     convertToBMP(canvas, width, height) {
-      return convertToImage(canvas, width, height, 'bmp')
+      return convertToImage(canvas, width, height, 'bmp');
     },
-  }
-})()
+  };
+})();
 
 // Export function, used in npm
-export default Canvas2Image
+export default Canvas2Image;
