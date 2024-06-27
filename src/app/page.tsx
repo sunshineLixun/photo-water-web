@@ -1,10 +1,10 @@
+/* eslint-disable @next/next/no-img-element */
 /* eslint-disable react/no-unescaped-entities */
 'use client';
 
 import { Button } from '@/components/ui/button';
 import { filetoBase64 } from '@/lib/file2base64';
 import html2canvas from 'html2canvas';
-import Image from 'next/image';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
 export default function Home() {
@@ -65,8 +65,8 @@ export default function Home() {
     }
 
     return (
-      <div>
-        <Image className="block w-full align-top" src={currentImg} alt={''} />
+      <div className="cursor-pointer" onClick={onFileClick}>
+        <img className="block w-full align-top" src={currentImg} alt={''} />
       </div>
     );
   }, [currentImg]);
@@ -80,19 +80,17 @@ export default function Home() {
         accept="image/*"
         onChange={onInputFileChange}
       />
-
-      <div className="bg-white dark:bg-black" ref={targetRef}>
+      <div className="bg-white shadow-lg dark:bg-black" ref={targetRef}>
         {renderImg}
-        <div className="flex justify-between p-4 leading-none dark:text-white md:p-8">
+        <div className="flex justify-between p-1 leading-none dark:text-white md:p-8">
           <div>
             <h3 className="mb-1 text-xs font-medium md:mb-3 md:text-[22px]"> XIAOMI 12S ULTRA </h3>
             <p className="text-[8px] opacity-40 dark:opacity-80 md:text-base">
-              {' '}
-              2024.06.25 10:42:20{' '}
+              2024.06.25 10:42:20
             </p>
           </div>
           <div className="flex items-center gap-[6px] md:gap-3">
-            <Image src="" alt="" className="h-6 w-6 object-cover md:h-12 md:w-12" />
+            <img src="" alt="" className="h-6 w-6 object-cover md:h-12 md:w-12" />
             <div className="h-6 w-[1px] bg-[#D8D8D8] md:h-12"></div>
             <div>
               <h3 className="mb-1 flex gap-[6px] text-xs font-medium md:mb-3 md:gap-3 md:text-[22px]">
@@ -110,7 +108,9 @@ export default function Home() {
         </div>
       </div>
 
-      <Button onClick={takeScreenshotHandler}>下载</Button>
+      <Button className="mx-2 my-2" onClick={takeScreenshotHandler}>
+        下载
+      </Button>
     </main>
   );
 }
