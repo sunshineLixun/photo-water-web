@@ -49,39 +49,49 @@ export default function Home() {
     setBtnLoading(false);
   };
 
-  const onInputFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (files) {
-      const file = files[0];
-      const base64 = await filetoBase64(file);
-      setCurrentBase64(base64);
-    }
-  };
-
   const onFileClick = () => {
-    setCurrentBase64(null);
     if (inputFileRef.current) {
       inputFileRef.current.click();
     }
   };
 
-  const showImgLoad = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
-    if (e) {
-      // @ts-ignore
-      EXIF.getData(e.target, function () {
-        const data = EXIF.getAllTags(e.target) as EXIFTagData;
-        if (Object.keys(data).length) {
-          console.log(data);
-          setExifModel(data);
-        }
-      });
+  const showImgLoad = (base64: string) => {
+    if (!base64) return Promise.reject();
+    return new Promise<void>((resolve) => {
+      const image = new Image();
+      image.src = base64;
+      image.onload = () => {
+        // @ts-ignore
+        EXIF.getData(image, function () {
+          const data = EXIF.getAllTags(image) as EXIFTagData;
+          setExifModel(Object.keys(data).length ? data : {});
+          resolve();
+        });
+      };
+    });
+  };
+
+  const onInputFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    const first = files?.[0];
+    if (first) {
+      const base64 = await filetoBase64(first);
+      try {
+        await showImgLoad(base64);
+        setCurrentBase64(base64);
+      } catch (error) {
+        console.log(error);
+      }
     }
   };
 
   const renderImg = useMemo(() => {
     if (!currentBase64) {
       return (
-        <div className="relative h-60 w-full cursor-pointer md:h-80" onClick={onFileClick}>
+        <div
+          className="relative m-2 flex h-60 cursor-pointer items-center justify-center border-[1px] border-dashed text-gray-500 md:h-80"
+          onClick={onFileClick}
+        >
           上传图片
         </div>
       );
@@ -89,18 +99,13 @@ export default function Home() {
 
     return (
       <div className="cursor-pointer" onClick={onFileClick}>
-        <img
-          className="block w-full align-top"
-          onLoad={showImgLoad}
-          src={currentBase64}
-          alt="image"
-        />
+        <img className="block w-full align-top" src={currentBase64} alt="image" />
       </div>
     );
   }, [currentBase64]);
 
   return (
-    <main className="flex flex-col">
+    <main className="flex flex-col gap-4">
       <input
         ref={inputFileRef}
         className="hidden"
