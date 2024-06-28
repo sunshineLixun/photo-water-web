@@ -13,7 +13,7 @@ import { defaultEXIFModel } from '@/constants/constants';
 import { GPSLatitudeToStr, GPSLongitudeToStr, getComputedFNumber, getExposure } from '@/lib/utils';
 
 export default function Home() {
-  const [currentDpx, setCurrentDpx] = useState(1);
+  const [currentDpx, setCurrentDpx] = useState(3);
   const [currentBase64, setCurrentBase64] = useState<string | null>(null);
   const [btnLoading, setBtnLoading] = useState(false);
   const targetRef = useRef<HTMLDivElement>(null);
@@ -37,6 +37,7 @@ export default function Home() {
     if (!element) return;
 
     setBtnLoading(true);
+
     const canvas = await html2canvas(element, {
       scale: currentDpx,
       logging: true,
@@ -78,9 +79,10 @@ export default function Home() {
       const base64 = await filetoBase64(first);
       try {
         await showImgLoad(base64);
-        setCurrentBase64(base64);
       } catch (error) {
         console.log(error);
+      } finally {
+        setCurrentBase64(base64);
       }
     }
   };
@@ -98,7 +100,7 @@ export default function Home() {
     }
 
     return (
-      <div className="cursor-pointer" onClick={onFileClick}>
+      <div className="relative cursor-pointer" onClick={onFileClick}>
         <img className="block w-full align-top" src={currentBase64} alt="image" />
       </div>
     );
@@ -149,10 +151,12 @@ export default function Home() {
         </div>
       </div>
 
-      <Button disabled={btnLoading} className="mx-2 my-2" onClick={takeScreenshotHandler}>
-        {btnLoading && <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />}
-        下载
-      </Button>
+      {currentBase64 && (
+        <Button disabled={btnLoading} className="mx-2 my-2" onClick={takeScreenshotHandler}>
+          {btnLoading && <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />}
+          下载
+        </Button>
+      )}
     </main>
   );
 }
