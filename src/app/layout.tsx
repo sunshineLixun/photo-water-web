@@ -16,7 +16,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={cn(inter.className, 'mx-auto max-w-2xl py-12')}>{children}</body>
+      <body
+        className={cn(inter.className, 'mx-auto flex max-w-3xl items-center justify-center py-12')}
+      >
+        {children}
+      </body>
     </html>
   );
 }
