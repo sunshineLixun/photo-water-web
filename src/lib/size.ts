@@ -4,7 +4,7 @@ export interface ViewSize {
 }
 
 export const defaultViewSize: ViewSize = {
-  width: 700,
+  width: document.body.clientWidth * 0.5,
   height: 800,
 };
 

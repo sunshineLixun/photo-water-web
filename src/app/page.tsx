@@ -11,7 +11,6 @@ import EXIF from 'exif-js';
 import type { EXIFTagData } from '@/types/exif';
 import { defaultEXIFModel } from '@/constants/constants';
 import { GPSLatitudeToStr, GPSLongitudeToStr, getComputedFNumber, getExposure } from '@/lib/utils';
-import { ViewSize, defaultViewSize, getImageSize } from '@/lib/size';
 
 export default function Home() {
   const [currentDpx, setCurrentDpx] = useState(3);
@@ -20,7 +19,6 @@ export default function Home() {
   const targetRef = useRef<HTMLDivElement>(null);
   const inputFileRef = useRef<HTMLInputElement>(null);
   const [exifModel, setExifModel] = useState<Partial<EXIFTagData>>({});
-  const [imgSize, setImgSize] = useState<ViewSize>(defaultViewSize);
 
   const updatePixelRatio = () => {
     const pr = window.devicePixelRatio;
@@ -40,10 +38,6 @@ export default function Home() {
 
     setBtnLoading(true);
 
-    const style = document.createElement('style');
-    document.head.appendChild(style);
-    style.sheet?.insertRule('body > div:last-child img { display: inline-block; }');
-
     const canvas = await html2canvas(element, {
       scale: currentDpx,
       logging: true,
@@ -53,6 +47,7 @@ export default function Home() {
     const Canvas2Image = (await import('@/lib/cavans2image')).default;
 
     Canvas2Image.saveAsImage(canvas, canvas.width, canvas.height, 'jpeg', 'image');
+
     setBtnLoading(false);
   };
 
@@ -68,8 +63,6 @@ export default function Home() {
       const image = new Image();
       image.src = base64;
       image.onload = () => {
-        const size = getImageSize(image);
-        setImgSize(size);
         // @ts-ignore
         EXIF.getData(image, function () {
           const data = EXIF.getAllTags(image) as EXIFTagData;
@@ -109,13 +102,17 @@ export default function Home() {
 
     return (
       <div className="relative cursor-pointer" onClick={onFileClick}>
-        <img className="block w-full object-contain align-top" src={currentBase64} alt="image" />
+        <img
+          className="inline-block w-full object-contain align-top"
+          src={currentBase64}
+          alt="image"
+        />
       </div>
     );
   }, [currentBase64]);
 
   return (
-    <main className="flex flex-col gap-4">
+    <main className="flex w-full flex-col gap-4">
       <input
         ref={inputFileRef}
         className="hidden"
@@ -123,13 +120,7 @@ export default function Home() {
         accept="image/*"
         onChange={onInputFileChange}
       />
-      <div
-        className="bg-white shadow-lg dark:bg-black"
-        style={{
-          width: imgSize.width,
-        }}
-        ref={targetRef}
-      >
+      <div className="bg-white shadow-lg dark:bg-black" ref={targetRef}>
         {renderImg}
         <div className="flex justify-between p-4 leading-none dark:text-white md:p-8">
           <div>
