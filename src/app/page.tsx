@@ -17,7 +17,6 @@ import { toJpeg } from 'html-to-image';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 /* eslint-disable @next/next/no-img-element */
-/* eslint-disable react/no-unescaped-entities */
 
 export default function Home() {
   const [currentDpx, setCurrentDpx] = useState(3);
@@ -142,7 +141,7 @@ export default function Home() {
             />
             <div className="h-6 w-[1px] bg-[#D8D8D8] md:h-12"></div>
             <div>
-              <h3 className="flex gap-[6px] font-medium max-md:text-xs md:mb-3 md:gap-3 md:text-[22px]">
+              <h3 className="mb-1 flex gap-[6px] font-medium max-md:text-xs md:mb-3 md:gap-3 md:text-[22px]">
                 <span>
                   {exifModel.FocalLengthIn35mmFilm || defaultEXIFModel.FocalLengthIn35mmFilm}mm
                 </span>
