@@ -51,3 +51,13 @@ export function getExposure(exposureTime: FNumber | undefined, defaultValue: FNu
   const result = exposureTime || defaultValue!;
   return `${result.numerator}` + '/' + `${result.denominator}`;
 }
+
+export function downloadFile(url: string, filename: string) {
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}

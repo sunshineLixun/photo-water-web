@@ -1,16 +1,23 @@
-/* eslint-disable @next/next/no-img-element */
-/* eslint-disable react/no-unescaped-entities */
 'use client';
 
 import { Button } from '@/components/ui/button';
+import { defaultEXIFModel } from '@/constants/constants';
 import { filetoBase64 } from '@/lib/file2base64';
-import html2canvas from 'html2canvas';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import {
+  GPSLatitudeToStr,
+  GPSLongitudeToStr,
+  downloadFile,
+  getComputedFNumber,
+  getExposure,
+} from '@/lib/utils';
+import type { EXIFTagData } from '@/types/exif';
 import { ReloadIcon } from '@radix-ui/react-icons';
 import EXIF from 'exif-js';
-import type { EXIFTagData } from '@/types/exif';
-import { defaultEXIFModel } from '@/constants/constants';
-import { GPSLatitudeToStr, GPSLongitudeToStr, getComputedFNumber, getExposure } from '@/lib/utils';
+import { toJpeg } from 'html-to-image';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+
+/* eslint-disable @next/next/no-img-element */
+/* eslint-disable react/no-unescaped-entities */
 
 export default function Home() {
   const [currentDpx, setCurrentDpx] = useState(3);
@@ -32,24 +39,16 @@ export default function Home() {
     setCurrentDpx(window.devicePixelRatio);
   }, []);
 
-  const takeScreenshotHandler = async () => {
+  const takeScreenshotHandler = useCallback(async () => {
     const element = targetRef.current;
     if (!element) return;
 
     setBtnLoading(true);
+    const dataUrl = await toJpeg(element, { pixelRatio: currentDpx });
 
-    const canvas = await html2canvas(element, {
-      scale: currentDpx,
-      logging: true,
-      useCORS: true,
-    });
-
-    const Canvas2Image = (await import('@/lib/cavans2image')).default;
-
-    Canvas2Image.saveAsImage(canvas, canvas.width, canvas.height, 'jpeg', 'image');
-
+    downloadFile(dataUrl, 'image.jpeg');
     setBtnLoading(false);
-  };
+  }, [targetRef, currentDpx]);
 
   const onFileClick = () => {
     if (inputFileRef.current) {
@@ -66,7 +65,8 @@ export default function Home() {
         // @ts-ignore
         EXIF.getData(image, function () {
           const data = EXIF.getAllTags(image) as EXIFTagData;
-          setExifModel(Object.keys(data).length ? data : {});
+          console.log(data);
+          setExifModel(Object.keys(data).length ? data : defaultEXIFModel);
           resolve();
         });
       };
@@ -127,7 +127,10 @@ export default function Home() {
             <h3 className="mb-1 font-medium max-md:text-xs md:mb-3 md:text-[22px]">
               {exifModel.Model || defaultEXIFModel.Model}
             </h3>
-            <p className="text-[8px] opacity-40 dark:opacity-80 md:text-base">
+            <p
+              className="text-[8px] opacity-40 dark:opacity-80 md:text-base"
+              suppressHydrationWarning
+            >
               {exifModel.DateTime || defaultEXIFModel.DateTime}
             </p>
           </div>
